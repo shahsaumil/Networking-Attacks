@@ -1,78 +1,24 @@
-"""
-References:
-https://scapy.readthedocs.io/en/latest/
-https://www.geeksforgeeks.org/network-scanning-using-scapy-module-python/?ref=rp
 
-EECE 655 Assignment 2 - Fall 20-21
-October 23, 2020
-This code implements a detector for an ARP cache poisoning attack.
-
---------------------Two Defense Strategies-------------------------
-
-               -----------Strategy 1-----------
-Get ARP table of all hosts and check for duplicate MAC addresses.
-If duplicates exits, then one or more MAC addresses are spoofed.
-
-              ------------Strategy 2-----------
-Sniff the network for ARP replies.
-Upon reading a reply, the detector reads the source MAC address.
-Let's call it MAC_address_suspicious.
-The detector then sends an arp request to the sender.
-The sender replies back with its MAC address.
-Let's call it MAC_address_sender.
-If MAC_address suspicious and MAC_address_sender are equal, 
-then no attack is detected.
-Else, MAC_address_suspicious is spoofed. Attack is detected
--------------------------------------------------------------------
-
-Developed by: Aline Challita & Edmond Samaha
-NOTE: The author of each function is indicated before the start of each function.
-"""
 
 import os, platform, subprocess, threading
 from datetime import datetime
 from scapy.all import *
 
-"""
-NOTE: Some Scapy specific funtions may show up as errors/undefined in editors
-but actually they are not errors just subprocesses that run on command line
-"""
+
 
 numarp=0 #number of arp packets detected on network
 
 #region FUNCTIONS
 
-"""
-Authors: Aline for oneMac=False; Edmond for oneMac=True
-Function is tested
-"""
 def getMacs(ip, oneMac=True):
-    """
-    --------------Function Description--------------- 
-    Scans the LAN network for available hosts:
-    *create an ARP request for target IP address
-    *create a broadcast ethernet frame
-    *put arp request inside the ethernet frame
-    *send the arp request frame
-    *receive response
-    *parse IP and MAC addresses from response
-    *print ARP table of available hosts on the network
-    -------------------------------------------------
-    """
+ 
     arp = ARP(pdst=ip)                      #create an ARP packet where pdst is dest IP 
     ether = Ether(dst="ff:ff:ff:ff:ff:ff")  #create ethernet frame with broadcast dest MAC address
     arp_broadcast_packet = ether/arp        #append arp packet inside ethernet frame
 
-    #Now we use the srp function in scapy to send and receive packets.
-    #srp returns 2 types of packets.
-    #They are the answered packets and unanswered packets.
-    #We only care about answered packets 
+
     answered_packets = srp(arp_broadcast_packet, timeout=3, verbose=0)[0]
 
-    #In each packet in the answered_packets list,
-    #the IP address is stored in psrc variable
-    #and the MAC address is stored in hwsrc variable
-    #Store these values in a list of hosts
     
     if(oneMac):
         try:
@@ -100,15 +46,7 @@ Author: Aline Challita
 Function is tested
 """
 def checkForDuplicateMacs(entries):
-    """
-    ----------------Function Description------------------------
-    This function tests for duplicate MAC addresses in the table
-    of IP-MAC bindings of all the hosts on the network.
-    Since MAC addresses are unique,
-    then if identical MAC addresses are found in the table,
-    ARP cache poisoning is detected
-    ------------------------------------------------------------ 
-    """
+ 
     macarr = []                         #initialize empty array to store MAC addresses
     for entry in entries:
         macarr.append(entry['mac'])     #Fill MAC array with MAC entries from the table
@@ -168,10 +106,7 @@ def Detect(duration=10):
     print("Started at",start_time)
     print('Sniffing and checking...')
     
-    """ For Scapy specific funtions below
-    prn=checkMac runs checkMac for every packet (of course we focus on ARP packets as set in the function)
-    store=False means don't save the packets
-    """
+ 
     # sniff(store=False, prn=checkMac) #Scapy specific, ^C to stop, can also add filter="arp" as param
     #Asynchronous to implement time:
     t = AsyncSniffer(prn=checkMac, store=False)
