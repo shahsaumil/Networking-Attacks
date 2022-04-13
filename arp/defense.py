@@ -41,10 +41,7 @@ def getMacs(ip, oneMac=True):
             print("{}\t{}".format(host['ip'], host['mac']))
         return(hosts)
     
-"""
-Author: Aline Challita
-Function is tested
-"""
+
 def checkForDuplicateMacs(entries):
  
     macarr = []                         #initialize empty array to store MAC addresses
