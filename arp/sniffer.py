@@ -48,13 +48,7 @@ def main():
 def printPacketsV4(filter, data, raw_data):
     (version, header_length, ttl, proto, src, target, data) = ipv4_Packet(data)
 
-    # # ICMP
-    # if proto == 1 and (len(filter) == 0 or filter[1] == 1):
-    #     icmp_type, code, checksum, data = icmp_-packet(data)
-    #     print ("------------------------ICMP------------------------")
-    #     print ("\tICMP type: %s" % (icmp_type))
-    #     print ("\tICMP code: %s" % (code))
-    #     print ("\tICMP checksum: %s" % (checksum))
+
 
     # TCP
     if proto == 6 and (len(filter) == 0 or filter[1] == 6):
@@ -89,8 +83,7 @@ def printPacketsV4(filter, data, raw_data):
 def printPacketsV6(filter, nextProto, newPacket):
     remainingPacket = ""
 
-    # if (nextProto == 'ICMPv6' and (len(filter) == 0 or filter[2] == "ICMPv6")):
-    #     remainingPacket = icmpv6Header(newPacket)
+
     if (nextProto == 'TCP' and (len(filter) == 0 or filter[2] == "TCP")):
         remainingPacket = tcpHeader(newPacket)
 
@@ -147,19 +140,6 @@ def tcpHeader(newPacket):
     packet = packet[20:]
     return packet
 
-
-
-# def icmpv6Header(data):
-#     ipv6_icmp_type, ipv6_icmp_code, ipv6_icmp_chekcsum = struct.unpack(
-#         ">BBH", data[:4])
-
-#     print ("------------------------ICMPv6------------------------")
-#     print ("\tICMPv6 type: %s" % (ipv6_icmp_type))
-#     print ("\tICMPv6 code: %s" % (ipv6_icmp_code))
-#     print ("\tICMPv6 checksum: %s" % (ipv6_icmp_chekcsum))
-
-#     data = data[4:]
-#     return data
 
 
 def nextHeader(ipv6_next_header):
@@ -242,13 +222,6 @@ def ipv4_Packet(data):
 def ipv4(addr):
     return '.'.join(map(str, addr))
 
-
-# Unpacks for any ICMP Packet
-# def icmp_packet(data):
-#     icmp_type, code, checksum = struct.unpack('! B B H', data[:4])
-#     return icmp_type, code, checksum, data[4:]
-
-# Unpacks for any TCP Packet
 def tcp_seg(data):
     (src_port, dest_port, sequence, acknowledgement, offset_reserved_flag) = struct.unpack('! H H L L H', data[:14])
     offset = (offset_reserved_flag >> 12) * 4
